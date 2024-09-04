@@ -26,16 +26,13 @@ export default function JobForm() {
                 },
                 body: JSON.stringify(newJob),
             });
-
-            if (!response.ok) {
-                throw new Error('Failed to add job');
-            }
-
+            if (!response.ok) throw new Error('Failed to add job');
             toast({
                 title: "Job Added",
                 description: `${newJob.title} at ${newJob.company} has been added to your tracker.`,
             });
             form.reset();
+            window.location.reload();
         } catch (error) {
             /* console.error('Error:', error); */
             toast({
@@ -47,16 +44,53 @@ export default function JobForm() {
     };
 
     return (
-        <form onSubmit={addJob} className="mb-8">
-            <input type="text" name="title" placeholder="Job Title" className="p-2 rounded mr-2" required />
-            <input type="text" name="company" placeholder="Company" className="p-2 rounded mr-2" required />
-            <select name="status" className="p-2 rounded mr-2" required>
-                <option value="TO_APPLY">To Apply</option>
-                <option value="APPLIED">Applied</option>
-                <option value="INTERVIEWING">Interviewing</option>
-                <option value="OFFER">Offer</option>
-            </select>
-            <Button type="submit" className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600">+ Add New Job</Button>
+        <form onSubmit={addJob} className="max-w-xl mx-auto p-6 bg-white rounded-lg shadow-md">
+            <div className="flex items-center space-x-4">
+                <div className="flex-1">
+                    <label htmlFor="title" className="block text-sm font-medium text-gray-700">Job Title</label>
+                    <input
+                        id="title"
+                        type="text"
+                        name="title"
+                        placeholder="Enter job title"
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                        required
+                    />
+                </div>
+                <div className="flex-1">
+                    <label htmlFor="company" className="block text-sm font-medium text-gray-700">Company</label>
+                    <input
+                        id="company"
+                        type="text"
+                        name="company"
+                        placeholder="Enter company name"
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                        required
+                    />
+                </div>
+                <div className="flex-1">
+                    <label htmlFor="status" className="block text-sm font-medium text-gray-700">Status</label>
+                    <select
+                        id="status"
+                        name="status"
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                        required
+                    >
+                        <option value="TO_APPLY">To Apply</option>
+                        <option value="APPLIED">Applied</option>
+                        <option value="INTERVIEWING">Interviewing</option>
+                        <option value="OFFER">Offer</option>
+                    </select>
+                </div>
+                <div className="flex-none">
+                    <Button
+                        type="submit"
+                        className="mt-4 bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                    >
+                        + Add New Job
+                    </Button>
+                </div>
+            </div>
         </form>
     );
 }
