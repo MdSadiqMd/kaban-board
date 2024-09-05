@@ -21,7 +21,11 @@ export default async function Home() {
   const statusOrder: JobStatus[] = ['TO_APPLY', 'APPLIED', 'INTERVIEWING', 'OFFER'];
 
   const renderJobs = (status: JobStatus) => {
-    return groupedJobs[status]?.map((job) => (
+    if (groupedJobs[status].length === 0) {
+      return <p className="text-sm text-gray-500">No jobs available for this status.</p>;
+    }
+
+    return groupedJobs[status].map((job) => (
       <div key={job.id} className="bg-white p-4 mb-4 rounded-lg shadow">
         <h4 className="text-md font-semibold">{job.title}</h4>
         <p className="text-sm text-gray-600">{job.company}</p>
