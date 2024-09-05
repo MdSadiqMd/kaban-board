@@ -2,6 +2,7 @@ import { api } from "~/trpc/server";
 import JobForm from "~/components/ui/createJobForm";
 import { JobStatus } from "~/types/jobStatus.types";
 import updateJobStatus from "~/utils/updateJobStatus.util";
+import { Button } from "~/components/ui/button";
 
 export default async function Home() {
   const jobs = await api.job.getJobs();
@@ -28,24 +29,24 @@ export default async function Home() {
           <form action={updateJobStatus}>
             <input type="hidden" name="jobId" value={job.id} />
             <input type="hidden" name="newStatus" value={statusOrder[statusOrder.indexOf(status) - 1]} />
-            <button
+            <Button
               type="submit"
               disabled={status === 'TO_APPLY'}
               className="px-2 py-1 bg-blue-500 text-white rounded disabled:bg-gray-300"
             >
               ←
-            </button>
+            </Button>
           </form>
           <form action={updateJobStatus}>
             <input type="hidden" name="jobId" value={job.id} />
             <input type="hidden" name="newStatus" value={statusOrder[statusOrder.indexOf(status) + 1]} />
-            <button
+            <Button
               type="submit"
               disabled={status === 'OFFER'}
               className="px-2 py-1 bg-green-500 text-white rounded disabled:bg-gray-300"
             >
               →
-            </button>
+            </Button>
           </form>
         </div>
       </div>

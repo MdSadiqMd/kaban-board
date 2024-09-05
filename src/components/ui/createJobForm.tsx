@@ -1,46 +1,49 @@
 "use client";
 
 import React from 'react';
+import { useMutation } from '@tanstack/react-query';
+import axios from "axios";
 
 import { toast } from '~/hooks/use-toast';
 import { JobStatus } from '~/types/jobStatus.types';
 import { Button } from './button';
 
 export default function JobForm() {
+    const createFormMutation = useMutation({
+        mutationFn: async (newJob: { title: string, company: string, status: JobStatus; }) => {
+            return await axios.post('/api/job', newJob, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+        },
+        onSuccess: (data, newJob) => {
+            toast({
+                title: "Job Added",
+                description: `${newJob.title} at ${newJob.company} has been added to your tracker.`,
+            });
+            window.location.reload();
+        },
+        onError: () => {
+            toast({
+                title: "Error",
+                description: "Failed to add job. Please try again.",
+                variant: "destructive",
+            });
+        },
+    });
+
     const addJob = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const form = event.currentTarget as HTMLFormElement;
         const formData = new FormData(form);
-        /* console.log(Array.from(formData.entries())); */
 
         const newJob = {
             title: formData.get('title') as string,
             company: formData.get('company') as string,
             status: formData.get('status') as JobStatus,
         };
-        try {
-            const response = await fetch('/api/job', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(newJob),
-            });
-            if (!response.ok) throw new Error('Failed to add job');
-            toast({
-                title: "Job Added",
-                description: `${newJob.title} at ${newJob.company} has been added to your tracker.`,
-            });
-            form.reset();
-            window.location.reload();
-        } catch (error) {
-            /* console.error('Error:', error); */
-            toast({
-                title: "Error",
-                description: "Failed to add job. Please try again.",
-                variant: "destructive",
-            });
-        }
+        createFormMutation.mutate(newJob);
     };
 
     return (
