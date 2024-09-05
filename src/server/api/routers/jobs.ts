@@ -22,8 +22,9 @@ export const jobRouter = createTRPCRouter({
         }),
 
     getJobs: publicProcedure.query(async ({ ctx }) => {
-        const job = await ctx.db.job.findMany({
+        const jobs = await ctx.db.job.findMany({
             select: {
+                id: true,
                 title: true,
                 company: true,
                 status: true,
@@ -31,6 +32,21 @@ export const jobRouter = createTRPCRouter({
                 updatedAt: true,
             }
         });
-        return job ?? null;
+        return jobs ?? [];
     }),
+
+    updateStatus: publicProcedure
+        .input(z.object({
+            id: z.number(),
+            status: z.enum(['TO_APPLY', 'APPLIED', 'INTERVIEWING', 'OFFER'])
+        }))
+        .mutation(async ({ ctx, input }) => {
+            return ctx.db.job.update({
+                where: { id: input.id },
+                data: {
+                    status: input.status,
+                    updatedAt: new Date(),
+                },
+            });
+        }),
 });
