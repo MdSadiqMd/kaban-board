@@ -13,7 +13,7 @@ const config = {
     "plugin:@typescript-eslint/stylistic-type-checked"
   ],
   rules: {
-    "@MdSadiqMd/use-client-t3/no-top-level-use-client": "error",  // Scoped rule
+    "@MdSadiqMd/use-client-t3/no-top-level-use-client": "error",
     "@MdSadiqMd/use-client-t3/no-event-handlers-in-client-props": "error",
     "@typescript-eslint/consistent-type-imports": [
       "warn",
