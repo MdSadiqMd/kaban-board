@@ -1,20 +1,20 @@
-/** @type {import("eslint").Linter.Config} */
 const config = {
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "project": true
+  parser: "@typescript-eslint/parser",
+  parserOptions: {
+    project: true
   },
-  "plugins": [
-    "@typescript-eslint"
+  plugins: [
+    "@typescript-eslint",
+    "@MdSadiqMd/use-client-t3",
   ],
-  "extends": [
+  extends: [
     "next/core-web-vitals",
     "plugin:@typescript-eslint/recommended-type-checked",
     "plugin:@typescript-eslint/stylistic-type-checked"
   ],
-  "rules": {
-    "@typescript-eslint/array-type": "off",
-    "@typescript-eslint/consistent-type-definitions": "off",
+  rules: {
+    "@MdSadiqMd/use-client-t3/no-top-level-use-client": "error",  // Scoped rule
+    "@MdSadiqMd/use-client-t3/no-event-handlers-in-client-props": "error",
     "@typescript-eslint/consistent-type-imports": [
       "warn",
       {
@@ -38,5 +38,6 @@ const config = {
       }
     ]
   }
-}
+};
+
 module.exports = config;
