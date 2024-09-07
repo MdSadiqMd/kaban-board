@@ -1,53 +1,83 @@
-import Link from "next/link";
-
-import { LatestPost } from "~/app/_components/post";
-import { api, HydrateClient } from "~/trpc/server";
+import { api } from "~/trpc/server";
+import JobForm from "~/components/ui/createJobForm";
+import { JobStatus } from "~/types/jobStatus.types";
+import updateJobStatus from "~/utils/updateJobStatus.util";
+import { Button } from "~/components/ui/button";
 
 export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
+  const jobs = await api.job.getJobs();
 
-  void api.post.getLatest.prefetch();
+  const groupedJobs = jobs.reduce((acc: Record<JobStatus, any[]>, job) => {
+    if (!acc[job.status]) acc[job.status] = [];
+    acc[job.status].push(job);
+    return acc;
+  }, {
+    TO_APPLY: [],
+    APPLIED: [],
+    INTERVIEWING: [],
+    OFFER: [],
+  });
+
+  const statusOrder: JobStatus[] = ['TO_APPLY', 'APPLIED', 'INTERVIEWING', 'OFFER'];
+
+  const renderJobs = (status: JobStatus) => {
+    if (groupedJobs[status].length === 0) {
+      return <p className="text-sm text-gray-500">No jobs available for this status.</p>;
+    }
+
+    return groupedJobs[status].map((job) => (
+      <div key={job.id} className="bg-white p-4 mb-4 rounded-lg shadow">
+        <h4 className="text-md font-semibold">{job.title}</h4>
+        <p className="text-sm text-gray-600">{job.company}</p>
+        <div className="mt-2 flex justify-between">
+          <form action={updateJobStatus}>
+            <input type="hidden" name="jobId" value={job.id} />
+            <input type="hidden" name="newStatus" value={statusOrder[statusOrder.indexOf(status) - 1]} />
+            <Button
+              type="submit"
+              disabled={status === 'TO_APPLY'}
+              className="px-2 py-1 bg-blue-500 text-white rounded disabled:bg-gray-300"
+            >
+              ←
+            </Button>
+          </form>
+          <form action={updateJobStatus}>
+            <input type="hidden" name="jobId" value={job.id} />
+            <input type="hidden" name="newStatus" value={statusOrder[statusOrder.indexOf(status) + 1]} />
+            <Button
+              type="submit"
+              disabled={status === 'OFFER'}
+              className="px-2 py-1 bg-green-500 text-white rounded disabled:bg-gray-300"
+            >
+              →
+            </Button>
+          </form>
+        </div>
+      </div>
+    ));
+  };
 
   return (
-    <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-            Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
-          </h1>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/usage/first-steps"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">First Steps →</h3>
-              <div className="text-lg">
-                Just the basics - Everything you need to know to set up your
-                database and authentication.
-              </div>
-            </Link>
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/introduction"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">Documentation →</h3>
-              <div className="text-lg">
-                Learn more about Create T3 App, the libraries it uses, and how
-                to deploy it.
-              </div>
-            </Link>
+    <main className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-teal-300 via-emerald-300 to-green-200 text-gray-900">
+      <div className="w-full max-w-5xl px-6 py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-extrabold text-green-800 mb-6">Add New Job</h1>
+          <div className="w-full max-w-lg mx-auto">
+            <JobForm />
           </div>
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-2xl text-white">
-              {hello ? hello.greeting : "Loading tRPC query..."}
-            </p>
-          </div>
-
-          <LatestPost />
         </div>
-      </main>
-    </HydrateClient>
+        <section>
+          <h2 className="text-3xl font-bold text-green-800 mb-8 text-center">Job Application Tracker</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {statusOrder.map((status) => (
+              <div key={status} className="bg-gray-100 p-6 rounded-lg shadow-lg">
+                <h3 className="text-xl font-semibold text-green-700 mb-4 text-center">{status.replace('_', ' ')}</h3>
+                <div>{renderJobs(status)}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    </main>
   );
 }
